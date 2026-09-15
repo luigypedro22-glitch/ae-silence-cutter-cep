@@ -41,12 +41,15 @@ function handleCommand(payload) {
  * Analisa camadas de áudio em busca de silêncios
  */
 function analyzeAudioLayers(params) {
-    var app = new CSInterface().getAppVersion();
-    
     try {
         // Obtém composição ativa
+        if (!app.project.activeItem) {
+            sendResponse("error", "Nenhum projeto aberto");
+            return;
+        }
+
         var comp = app.project.activeItem;
-        if (!comp || !(comp instanceof CompItem)) {
+        if (!(comp instanceof CompItem)) {
             sendResponse("error", "Nenhuma composição ativa");
             return;
         }
@@ -70,8 +73,11 @@ function analyzeAudioLayers(params) {
         // Determina quais camadas analisar
         var layersToAnalyze = [];
         if (layerScope === "selected") {
-            if (comp.selectedLayers.length > 0) {
+            if (comp.selectedLayers && comp.selectedLayers.length > 0) {
                 layersToAnalyze = comp.selectedLayers;
+            } else {
+                sendResponse("error", "Nenhuma camada selecionada");
+                return;
             }
         } else {
             layersToAnalyze = comp.layers;
@@ -82,7 +88,7 @@ function analyzeAudioLayers(params) {
             var layer = layersToAnalyze[i - 1];
 
             // Verifica se é camada de áudio
-            if (layer.audioEnabled && layer.source instanceof FootageItem) {
+            if (layer.audioEnabled) {
                 var silenceData = detectSilenceInLayer(
                     layer,
                     sensitivity,
@@ -206,35 +212,47 @@ function processSilenceSegments(params) {
         app.beginUndoGroup("Silence Cutter - Process");
 
         // Processa cada camada afetada
-        for (var i = 0; i < analysisData.affectedLayers.length; i++) {
-            var layerData = analysisData.affectedLayers[i];
-            var layer = comp.layer(layerData.layerId);
+        if (analysisData.affectedLayers && analysisData.affectedLayers.length > 0) {
+            for (var i = 0; i < analysisData.affectedLayers.length; i++) {
+                var layerData = analysisData.affectedLayers[i];
+                var layer = comp.layer(layerData.layerId);
 
-            if (!layer) continue;
+                if (!layer) continue;
 
-            // Adiciona marcadores nos pontos de silêncio
-            if (addMarkers) {
-                for (var j = 0; j < layerData.segments.length; j++) {
-                    var segment = layerData.segments[j];
-                    var marker = layer.marker.setValueAtTime(segment.start, new MarkerValue("Silêncio"));
-                    totalMarkers++;
-                }
-            }
-
-            // Divide camadas nos pontos de corte
-            if (splitLayers) {
-                for (var k = layerData.segments.length - 1; k >= 0; k--) {
-                    var seg = layerData.segments[k];
-                    var splitTime = seg.start + (layer.inPoint || 0);
-                    
-                    // Divide a camada
-                    if (layer.splitLayer) {
-                        layer.splitLayer(splitTime);
+                // Adiciona marcadores nos pontos de silêncio
+                if (addMarkers && layerData.segments && layerData.segments.length > 0) {
+                    for (var j = 0; j < layerData.segments.length; j++) {
+                        var segment = layerData.segments[j];
+                        try {
+                            var marker = layer.marker.setValueAtTime(segment.start, new MarkerValue("Silêncio"));
+                            totalMarkers++;
+                        } catch (markerError) {
+                            // Continua se o marcador falhar
+                            alert("Erro ao adicionar marcador: " + markerError.message);
+                        }
                     }
                 }
-            }
 
-            affectedLayers.push(layer.name);
+                // Divide camadas nos pontos de corte
+                if (splitLayers && layerData.segments && layerData.segments.length > 0) {
+                    for (var k = layerData.segments.length - 1; k >= 0; k--) {
+                        var seg = layerData.segments[k];
+                        var splitTime = seg.start + layer.inPoint;
+                        
+                        // Divide a camada
+                        try {
+                            if (layer.splitLayer && typeof layer.splitLayer === "function") {
+                                layer.splitLayer(splitTime);
+                            }
+                        } catch (splitError) {
+                            // Continua se o split falhar
+                            alert("Erro ao dividir camada: " + splitError.message);
+                        }
+                    }
+                }
+
+                affectedLayers.push(layer.name);
+            }
         }
 
         app.endUndoGroup();
@@ -256,7 +274,9 @@ function processSilenceSegments(params) {
         });
 
     } catch (error) {
-        app.endUndoGroup();
+        try {
+            app.endUndoGroup();
+        } catch (e) {}
         sendResponse("error", "Erro ao processar silêncios: " + error.message);
     }
 }
@@ -285,16 +305,16 @@ function undoLastOperation() {
  */
 function sendResponse(type, data) {
     try {
-        if (typeof csInterface !== "undefined") {
-            var response = {
-                type: type,
-                data: data,
-                timestamp: new Date().getTime()
-            };
+        var response = {
+            type: type,
+            data: data,
+            timestamp: new Date().getTime()
+        };
 
-            var jsCode = "window.onExtendScriptResponse(" + JSON.stringify(response) + ");";
-            csInterface.evalScript(jsCode);
-        }
+        var jsonString = JSON.stringify(response);
+        var jsCode = "window.onExtendScriptResponse(" + jsonString + ");";
+        
+        app.csInterface.evalScript(jsCode);
     } catch (error) {
         alert("Erro ao enviar resposta: " + error.message);
     }
@@ -304,9 +324,13 @@ function sendResponse(type, data) {
  * Inicialização e setup
  */
 function initializeSilenceCutter() {
-    // Registra handler de comandos globalmente
-    if (typeof csInterface !== "undefined") {
-        // CEP está disponível, extensão carregada corretamente
+    try {
+        // Verifica se CEP está disponível
+        if (typeof app !== "undefined" && app.csInterface) {
+            // CEP está disponível, extensão carregada corretamente
+        }
+    } catch (e) {
+        // Silenciosamente falha se CEP não disponível
     }
 }
 
