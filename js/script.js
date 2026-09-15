@@ -50,7 +50,7 @@ class SilenceCutter {
             } else if (response.type === "processComplete") {
                 this.handleProcessComplete(response.data);
             } else if (response.type === "error") {
-                this.logError(response.message);
+                this.logError(response.data || response.message || "Erro desconhecido");
             } else if (response.type === "progress") {
                 this.updateProgress(response.percent);
             }
@@ -71,9 +71,10 @@ class SilenceCutter {
             // Usando csInterface do CEP
             if (typeof csInterface !== "undefined") {
                 const jsx = `handleCommand(${JSON.stringify(payload)})`;
-                csInterface.evalFile(jsx);
+                csInterface.evalScript(jsx);
             } else {
                 console.warn("CEP Interface não disponível");
+                this.logError("After Effects não respondendo");
             }
         } catch (error) {
             console.error("Erro ao enviar para ExtendScript:", error);
