@@ -11,12 +11,12 @@
         </Extension>
     </ExtensionList>
     <ExecutionEnvironment>
-        <Host Name="AEFT" Version="19.0"/>
+        <Host Name="AEFT" Version="19.0" />
     </ExecutionEnvironment>
     <DispatchInfoList>
         <Extension Id="com.luigypedro22.ae.silencecutter.panel">
-            <DispatchInfo URL="index.html">
-                <Parameter Name="documentTitle" Value="Silence Cutter"/>
+            <DispatchInfo URL="html/index.html">
+                <Parameter Name="documentTitle" Value="Silence Cutter" />
             </DispatchInfo>
         </Extension>
     </DispatchInfoList>
