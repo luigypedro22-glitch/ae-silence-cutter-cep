@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Silence Cutter - After Effects</title>
+    <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎬 Silence Cutter</h1>
+            <p class="subtitle">Corte automático de silêncios no After Effects</p>
+        </header>
+
+        <main>
+            <!-- Configurações de Análise -->
+            <section class="panel">
+                <h2>⚙️ Configurações</h2>
+
+                <!-- Sensibilidade -->
+                <div class="form-group">
+                    <label for="sensitivity">Sensibilidade (dB):</label>
+                    <input type="range" id="sensitivity" min="-60" max="-20" value="-40" class="slider" />
+                    <span id="sensitivityValue">-40 dB</span>
+                </div>
+
+                <!-- Tempo Mínimo de Som -->
+                <div class="form-group">
+                    <label for="minSound">Tempo mínimo de som (ms):</label>
+                    <input type="number" id="minSound" value="200" min="50" max="2000" class="input-number" />
+                </div>
+
+                <!-- Tempo Mínimo de Silêncio -->
+                <div class="form-group">
+                    <label for="minSilence">Tempo mínimo de silêncio (ms):</label>
+                    <input type="number" id="minSilence" value="300" min="50" max="2000" class="input-number" />
+                </div>
+
+                <!-- Opções de Ação -->
+                <div class="form-group">
+                    <label>Ações a executar:</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="splitLayers" checked />
+                            <span>Dividir camadas nos silêncios</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="addMarkers" checked />
+                            <span>Adicionar marcadores</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="previewAnalysis" checked />
+                            <span>Preview antes de aplicar</span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Camadas para Processar -->
+            <section class="panel">
+                <h2>📁 Camadas</h2>
+                <div class="form-group">
+                    <label>Processar:</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="layerScope" value="selected" />
+                            <span>Apenas camada selecionada</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="layerScope" value="all" checked />
+                            <span>Todas as camadas de áudio</span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Info e Status -->
+            <section class="panel">
+                <div id="infoBox" class="info-box hidden">
+                    <h3>📊 Análise</h3>
+                    <div id="analysisResult"></div>
+                </div>
+                <div id="statusBox" class="status-box">
+                    <p id="statusText">Pronto para processar</p>
+                    <div id="progressBar" class="progress-bar hidden">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Botões de Ação -->
+            <section class="button-group">
+                <button id="previewBtn" class="btn btn-secondary">👁️ Preview</button>
+                <button id="processBtn" class="btn btn-primary">▶️ Processar</button>
+                <button id="undoBtn" class="btn btn-tertiary" disabled>↶ Desfazer</button>
+            </section>
+        </main>
+
+        <footer>
+            <p>v1.0.0 | After Effects 2024+</p>
+        </footer>
+    </div>
+
+    <script src="../js/script.js"></script>
+</body>
+</html>
