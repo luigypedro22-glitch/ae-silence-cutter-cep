@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionManifest xmlns="http://adobe.com/products/extendscript/manifest/2005" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://adobe.com/products/extendscript/manifest/2005 http://adobe.com/products/extendscript/manifest/2005/extmanifest.xsd">
+    <ExtensionBundleVersion>1.0.0</ExtensionBundleVersion>
+    <ExtensionBundleId>com.luigypedro22.ae.silencecutter</ExtensionBundleId>
+    <ExtensionList>
+        <Extension Id="com.luigypedro22.ae.silencecutter.panel">
+            <Type>Panel</Type>
+            <RequiredVersion>
+                <Version>19.0</Version>
+            </RequiredVersion>
+        </Extension>
+    </ExtensionList>
+    <ExecutionEnvironment>
+        <Host Name="AEFT" Version="19.0"/>
+    </ExecutionEnvironment>
+    <DispatchInfoList>
+        <Extension Id="com.luigypedro22.ae.silencecutter.panel">
+            <DispatchInfo URL="index.html">
+                <Parameter Name="documentTitle" Value="Silence Cutter"/>
+            </DispatchInfo>
+        </Extension>
+    </DispatchInfoList>
+</ExtensionManifest>
